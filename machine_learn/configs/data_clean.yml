@@ -1,0 +1,14 @@
+power_size:
+  loanAmnt: 0.5
+  interestRate: 0.4
+  installment: 0.5
+  employmentTitle: 0.2
+  annualIncome: 0.15
+  postCode: 0.5
+  dti: 0.16
+  revolBal: 0.15
+  revolUtil: 0.2
+
+
+
+

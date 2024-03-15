@@ -28,6 +28,7 @@ def categorize_columns(df:pd.DataFrame,
 
     return result
 
+
 def transform_date_to_int_by_order(date_series: pd.Series)->pd.Series:
     '''
     将日期格式转化为数字并保留顺序
@@ -44,3 +45,18 @@ def transform_date_to_int_by_order(date_series: pd.Series)->pd.Series:
         replace_dict[all_date[i]] = i
     date_series = date_series.replace(replace_dict)
     return date_series
+
+
+def print_model_results(model_results: dict,
+                        model_name: str =None)-> None:
+    '''
+    基于model（dict）的输出结果进行输出
+    '''
+    if model_name != None:
+        print(f'Model Name : {model_name},   performance as follows ')
+    for i in model_results.keys():
+        if isinstance(model_results[i], float) or isinstance(model_results[i], int):
+            print(f'\t----Indicator name {i} : \t{str(round(model_results[i],4))}')
+        else:
+            print(f'\t----Indicator name {i}  type can be viewed by other method')
+        
