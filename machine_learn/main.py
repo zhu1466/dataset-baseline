@@ -4,11 +4,13 @@ from data_clean import data_clean
 from sklearn.model_selection import train_test_split
 from models import *
 from mlp import *
-
+import yaml
 
 data = pd.read_csv('machine_learn\data\data_after_clean.csv', index_col=[0])
-
-data = data[0:100000]
+model_params_path = 'machine_learn\configs\model_best_params.yml'
+with open(model_params_path, 'r', encoding='utf-8') as file:
+    model_params = yaml.load(file, Loader=yaml.FullLoader)
+#data = data[0:100000]
 columns_list = list(data.columns)
 label_column = 'isDefault'
 columns_list.remove(label_column)
@@ -21,4 +23,4 @@ X_train, X_test, y_train, y_test = train_test_split(features, labels, test_size=
 
 
 #results = mlp_train_test_proc(X_train=X_train, X_test=X_test, y_train=y_train, y_test=y_test)
-results = SVM_model(X_train=X_train, X_test=X_test, y_train=y_train, y_test=y_test)
+results = random_forest_model(X_train=X_train, X_test=X_test, y_train=y_train, y_test=y_test, model_best_configs=model_params)

@@ -72,16 +72,31 @@ def regression_model(X_train: pd.DataFrame,
 def SVM_model(  X_train: pd.DataFrame,
                 X_test: pd.DataFrame,
                 y_train: pd.DataFrame,
-                y_test: pd.DataFrame)->dict:
-    svm = SVC()
+                y_test: pd.DataFrame,
+                model_best_configs: dict)->dict:
+    '''
+    支持向量机（SVM）模型， 最佳模型参数基于model_tuning的结果，保存于configs//model_best_params.yml文件夹下
+    '''
+    try:
+        C = model_best_configs['SVM']['C']
+        kernel = model_best_configs['SVM']['kernel']
+        gamma = model_best_configs['SVM']['gamma']
+        degree = model_best_configs['SVM']['degree']
+        coef0 = model_best_configs['SVM']['coef0']
+
+    except:
+        print('Model params havent be saved as yml files, please run files from model_tuning first!')
+        return False
+    svm = SVC(C=C, kernel=kernel, gamma=gamma, degree=degree, coef0=coef0)
     svm.fit(X_train, y_train)
 
-    y_pred = svm.predict(X_test)
-    auc = roc_auc_score(y_test, y_pred)
-    acc = accuracy_score(y_test, y_pred)
-    precision = precision_score(y_test, y_pred)
-    recall = recall_score(y_test, y_pred)
-    f1 = f1_score(y_test, y_pred)
+    y_pred_proba = svm.predict_proba(X_test)
+    y_pred_classifier = svm.predict(X_test)
+    auc = roc_auc_score(y_test, y_pred_proba[:, 1])
+    acc = accuracy_score(y_test, y_pred_classifier)
+    precision = precision_score(y_test, y_pred_classifier)
+    recall = recall_score(y_test, y_pred_classifier)
+    f1 = f1_score(y_test, y_pred_classifier)
 
     results = {'Auc': auc,
                'Acc': acc,
@@ -94,15 +109,29 @@ def SVM_model(  X_train: pd.DataFrame,
 def random_forest_model(X_train: pd.DataFrame,
                         X_test: pd.DataFrame,
                         y_train: pd.DataFrame,
-                        y_test: pd.DataFrame)->dict:
-    rf = RandomForestClassifier(n_estimators=100, random_state=1466)
+                        y_test: pd.DataFrame,
+                        model_best_configs: dict)->dict:
+    
+    '''
+    随机森林模型， 最佳模型参数基于model_tuning的结果，保存于configs//model_best_params.yml文件夹下
+    '''
+    try:
+        n_estimators = model_best_configs['random_forest']['n_estimators']
+        min_samples_split = model_best_configs['random_forest']['min_samples_split']
+        max_depth = model_best_configs['random_forest']['max_depth']
+    except:
+        print('Model params havent be saved as yml files, please run files from model_tuning first!')
+        return False
+    rf = RandomForestClassifier(n_estimators=n_estimators, min_samples_split=min_samples_split, max_depth=max_depth)
     rf.fit(X_train, y_train)
-    y_pred = rf.predict(X_test)
-    auc = roc_auc_score(y_test, y_pred)
-    acc = accuracy_score(y_test, y_pred)
-    precision = precision_score(y_test, y_pred)
-    recall = recall_score(y_test, y_pred)
-    f1 = f1_score(y_test, y_pred)
+
+    y_pred_proba = rf.predict_proba(X_test)
+    y_pred_classifier = rf.predict(X_test)
+    auc = roc_auc_score(y_test, y_pred_proba[:, 1])
+    acc = accuracy_score(y_test, y_pred_classifier)
+    precision = precision_score(y_test, y_pred_classifier)
+    recall = recall_score(y_test, y_pred_classifier)
+    f1 = f1_score(y_test, y_pred_classifier)
 
     results = {'Auc': auc,
                'Acc': acc,
@@ -116,16 +145,31 @@ def random_forest_model(X_train: pd.DataFrame,
 def XGBoost_model(  X_train: pd.DataFrame,
                     X_test: pd.DataFrame,
                     y_train: pd.DataFrame,
-                    y_test: pd.DataFrame)->dict:
-    max_depth = 10
-    xgboost_classifier = XGBClassifier(max_depth = max_depth)
+                    y_test: pd.DataFrame,
+                    model_best_configs: dict)->dict:
+    '''
+    XGBoost模型， 最佳模型参数基于model_tuning的结果，保存于configs//model_best_params.yml文件夹下
+    '''
+    try:
+        max_depth = model_best_configs['XGBoost']['max_depth']
+        learning_rate = model_best_configs['XGBoost']['learning_rate']
+        n_estimators = model_best_configs['XGBoost']['n_estimators']
+        gamma = model_best_configs['XGBoost']['gamma']
+    except:
+        print('Model params havent be saved as yml files, please run files from model_tuning first!')
+        return False
+    
+    xgboost_classifier = XGBClassifier(max_depth=max_depth, learning_rate=learning_rate, n_estimators=n_estimators, gamma=gamma)
     xgboost_classifier.fit(X_train, y_train)
-    y_pred = xgboost_classifier.predict(X_test)
-    auc = roc_auc_score(y_test, y_pred)
-    acc = accuracy_score(y_test, y_pred)
-    precision = precision_score(y_test, y_pred)
-    recall = recall_score(y_test, y_pred)
-    f1 = f1_score(y_test, y_pred)
+
+    y_pred_proba = xgboost_classifier.predict_proba(X_test)
+    y_pred_classifier = xgboost_classifier.predict(X_test)
+    auc = roc_auc_score(y_test, y_pred_proba[:, 1])
+    acc = accuracy_score(y_test, y_pred_classifier)
+    precision = precision_score(y_test, y_pred_classifier)
+    recall = recall_score(y_test, y_pred_classifier)
+    f1 = f1_score(y_test, y_pred_classifier)
+
 
     results = {'Auc': auc,
                'Acc': acc,
@@ -138,17 +182,32 @@ def XGBoost_model(  X_train: pd.DataFrame,
 def decision_treel( X_train: pd.DataFrame,
                     X_test: pd.DataFrame,
                     y_train: pd.DataFrame,
-                    y_test: pd.DataFrame)->dict:
-    max_depth = 10
-    decision_tree_classifier = tree.DecisionTreeClassifier(criterion='gini', max_depth=max_depth)
-    decision_tree_classifier = decision_tree_classifier.fit(X_train, y_train)
-    y_pred = decision_tree_classifier.predict(X_test)
+                    y_test: pd.DataFrame,
+                    model_best_configs: dict)->dict:
+    '''
+    决策树模型， 最佳模型参数基于model_tuning的结果，保存于configs//model_best_params.yml文件夹下
+    '''
+    try:
+        max_depth = model_best_configs['decision_tree']['max_depth']
+        min_samples_split = model_best_configs['decision_tree']['min_samples_split']
+        min_samples_leaf = model_best_configs['decision_tree']['min_samples_leaf']
+        criterion = model_best_configs['decision_tree']['criterion']
+        max_features = model_best_configs['decision_tree']['max_features']
 
-    auc = roc_auc_score(y_test, y_pred)
-    acc = accuracy_score(y_test, y_pred)
-    precision = precision_score(y_test, y_pred)
-    recall = recall_score(y_test, y_pred)
-    f1 = f1_score(y_test, y_pred)
+    except:
+        print('Model params havent be saved as yml files, please run files from model_tuning first!')
+        return False
+    
+    decision_tree_classifier = tree.DecisionTreeClassifier(max_depth=max_depth, min_samples_split=min_samples_split, min_samples_leaf=min_samples_leaf, criterion=criterion, max_features=max_features)
+    decision_tree_classifier = decision_tree_classifier.fit(X_train, y_train)
+
+    y_pred_proba = decision_tree_classifier.predict_proba(X_test)
+    y_pred_classifier = decision_tree_classifier.predict(X_test)
+    auc = roc_auc_score(y_test, y_pred_proba[:, 1])
+    acc = accuracy_score(y_test, y_pred_classifier)
+    precision = precision_score(y_test, y_pred_classifier)
+    recall = recall_score(y_test, y_pred_classifier)
+    f1 = f1_score(y_test, y_pred_classifier)
 
     results = {'Auc': auc,
                'Acc': acc,

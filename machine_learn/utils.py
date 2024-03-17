@@ -1,6 +1,6 @@
 import pandas as pd
 from datetime import datetime
-
+import yaml
 def categorize_columns(df:pd.DataFrame,
                        max_discrete_number: int = 200)-> dict:
     '''
@@ -60,3 +60,15 @@ def print_model_results(model_results: dict,
         else:
             print(f'\t----Indicator name {i}  type can be viewed by other method')
         
+def save_model_params_to_yml(model_name: str,
+                             model_params: dict,
+                             yml_path: str) -> None:
+    '''
+    将模型的参数保存到yml文件中, 供模型使用时读取
+    '''
+    with open(yml_path, 'r', encoding='utf-8') as file:
+        data = yaml.load(file, Loader=yaml.FullLoader, )
+    data[model_name] = model_params
+    updated_yaml = yaml.dump(data)
+    with open(yml_path, 'w', encoding='utf-8') as file:
+        file.write(updated_yaml)
