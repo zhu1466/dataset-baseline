@@ -1,4 +1,25 @@
+decision_tree:
+  max_depth: 45
+  min_samples_split: 200
+  min_samples_leaf: 200
+  criterion: 'gini'
+  max_features: 'log2'
+
 random_forest:
   max_depth: 40
   min_samples_split: 10
   n_estimators: 200
+
+
+XGBoost:
+  max_depth: 40
+  learning_rate: 0.01
+  n_estimators: 300
+  gamma: 0.1
+
+SVM:
+  C: 5
+  kernel: rbf
+  gamma: 0.1
+  degree: 3
+  coef0: 0.5

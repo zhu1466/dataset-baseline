@@ -64,7 +64,6 @@ def regression_model(X_train: pd.DataFrame,
                 't_value':t_values,
                 'AUC':auc,
                 'Acc':acc}
-
     return results
 
 
@@ -87,7 +86,7 @@ def SVM_model(  X_train: pd.DataFrame,
     except:
         print('Model params havent be saved as yml files, please run files from model_tuning first!')
         return False
-    svm = SVC(C=C, kernel=kernel, gamma=gamma, degree=degree, coef0=coef0)
+    svm = SVC(C=C, kernel=kernel, gamma=gamma, degree=degree, coef0=coef0, probability=True)
     svm.fit(X_train, y_train)
 
     y_pred_proba = svm.predict_proba(X_test)
@@ -103,7 +102,7 @@ def SVM_model(  X_train: pd.DataFrame,
                'Precision': precision,
                'Recall': recall,
                'F1 score': f1}
-    print_model_results(results)
+    print_model_results(model_name='SVM', model_results= results)
     return results
 
 def random_forest_model(X_train: pd.DataFrame,
@@ -159,6 +158,9 @@ def XGBoost_model(  X_train: pd.DataFrame,
         print('Model params havent be saved as yml files, please run files from model_tuning first!')
         return False
     
+    X_train.columns = X_train.columns.str.replace('<', 'beyond')
+    X_test.columns = X_test.columns.str.replace('<', 'beyond')
+
     xgboost_classifier = XGBClassifier(max_depth=max_depth, learning_rate=learning_rate, n_estimators=n_estimators, gamma=gamma)
     xgboost_classifier.fit(X_train, y_train)
 
@@ -176,10 +178,10 @@ def XGBoost_model(  X_train: pd.DataFrame,
                'Precision': precision,
                'Recall': recall,
                'F1 score': f1}
-    print_model_results(model_name='Random Forest', model_results=results)
+    print_model_results(model_name='XGBoost', model_results=results)
     return results
 
-def decision_treel( X_train: pd.DataFrame,
+def decision_tree_model( X_train: pd.DataFrame,
                     X_test: pd.DataFrame,
                     y_train: pd.DataFrame,
                     y_test: pd.DataFrame,
@@ -214,7 +216,7 @@ def decision_treel( X_train: pd.DataFrame,
                'Precision': precision,
                'Recall': recall,
                'F1 score': f1}
-    print_model_results(model_name='Random Forest', model_results=results)
+    print_model_results(model_name='Decision tree', model_results=results)
     return results
 
 
