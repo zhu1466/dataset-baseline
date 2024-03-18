@@ -1,6 +1,11 @@
 import pandas as pd
+import math
 from datetime import datetime
 import yaml
+from pyecharts.charts import Sunburst
+from pyecharts import options as opts
+import matplotlib.pyplot as plt
+
 def categorize_columns(df:pd.DataFrame,
                        max_discrete_number: int = 200)-> dict:
     '''
@@ -21,9 +26,9 @@ def categorize_columns(df:pd.DataFrame,
             continuous_columns.append(column)
 
     result = {
-        'object_columns': object_columns,
-        'discrete_columns': discrete_columns,
-        'continuous_columns': continuous_columns
+        'object': object_columns,
+        'discrete': discrete_columns,
+        'continuous': continuous_columns
     }
 
     return result
@@ -72,3 +77,63 @@ def save_model_params_to_yml(model_name: str,
     updated_yaml = yaml.dump(data)
     with open(yml_path, 'w', encoding='utf-8') as file:
         file.write(updated_yaml)
+
+
+def plot_categorize_columns_results(categorize_columns_results: dict) ->Sunburst:
+    plot_data = []
+    for categorize_columns in categorize_columns_results.keys():
+        categorize = {}
+        categorize_children = []
+        for columns in categorize_columns_results[categorize_columns]:
+            columns_item = {}
+            columns_item['name'] = columns
+            columns_item['value'] = 1
+            categorize_children.append(columns_item)
+        categorize['children'] = categorize_children
+        categorize['name'] = categorize_columns
+        plot_data.append(categorize)
+    c = (
+        Sunburst(init_opts=opts.InitOpts(width="1000px", height="600px"))
+        .add(
+            "",
+            data_pair=plot_data,
+            highlight_policy="ancestor",
+            radius=[0, "95%"],
+            sort_="null",
+            levels=[
+                {},
+                {
+                    "r0": "15%",
+                    "r": "35%",
+                    "itemStyle": {"borderWidth": 2},
+                    "label": {"rotate": "tangential"},
+                },
+                {"r0": "35%", "r": "70%", "label": {"align": "right"}},
+                {
+                    "r0": "70%",
+                    "r": "72%",
+                    "label": {"position": "outside", "padding": 3, "silent": False},
+                    "itemStyle": {"borderWidth": 3},
+                },
+            ],
+        )
+        .set_global_opts(title_opts=opts.TitleOpts(title="特征分类"))
+        .set_series_opts(label_opts=opts.LabelOpts(formatter="{b}"))
+    )
+
+    return c
+
+def plot_different_features(data:pd.DataFrame,
+                            plot_method: str = 'bar') ->None:
+    width = 30
+    height = 100/14*math.floor(len(data.columns)/3)
+    fig, axes = plt.subplots(ncols=3, nrows=math.ceil(len(data.columns)/3), figsize=(width, height))
+    axes = axes.ravel()
+    for i, column in enumerate(data.columns):
+        if plot_method == 'bar':
+            axes[i].bar(data[column].value_counts().index, data[column].value_counts().values)
+        if plot_method == 'hist':
+            axes[i].hist(data[column], density=False, bins=15)  
+        axes[i].set_title(column)
+    plt.tight_layout()
+    plt.show()

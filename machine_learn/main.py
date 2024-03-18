@@ -10,7 +10,7 @@ data = pd.read_csv('machine_learn\data\data_after_clean.csv', index_col=[0])
 model_params_path = 'machine_learn\configs\model_best_params.yml'
 with open(model_params_path, 'r', encoding='utf-8') as file:
     model_params = yaml.load(file, Loader=yaml.FullLoader)
-data = data[0:50000]
+#data = data[0:50000]
 columns_list = list(data.columns)
 label_column = 'isDefault'
 columns_list.remove(label_column)
@@ -26,4 +26,5 @@ X_train, X_test, y_train, y_test = train_test_split(features, labels, test_size=
 # decision_tree_results = decision_tree_model(X_train=X_train, X_test=X_test, y_train=y_train, y_test=y_test, model_best_configs=model_params)
 # random_forest_results = random_forest_model(X_train=X_train, X_test=X_test, y_train=y_train, y_test=y_test, model_best_configs=model_params)
 # XGBoost_results = XGBoost_model(X_train=X_train, X_test=X_test, y_train=y_train, y_test=y_test, model_best_configs=model_params)
-SVM_results = SVM_model(X_train=X_train, X_test=X_test, y_train=y_train, y_test=y_test, model_best_configs=model_params)
+# SVM_results = SVM_model(X_train=X_train, X_test=X_test, y_train=y_train, y_test=y_test, model_best_configs=model_params)
+mlp_results = mlp_train_test_proc(X_train=X_train, X_test=X_test, y_train=y_train, y_test=y_test, model_best_configs=model_params)

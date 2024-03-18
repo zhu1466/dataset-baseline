@@ -14,9 +14,10 @@ class MLP(nn.Module):
         self.relu1 = nn.ReLU()
         self.fc2 = nn.Linear(hidden_size1, hidden_size2)
         self.relu2 = nn.ReLU()
-        self.fc3 = nn.Linear(hidden_size2, output_size)
-        # self.relu3 = nn.ReLU()
-        # self.fc4 = nn.Linear(hidden_size3, output_size)
+        self.fc3 = nn.Linear(hidden_size2, hidden_size3)
+        self.relu3 = nn.ReLU()
+        self.fc4 = nn.Linear(hidden_size3, output_size)
+        self.sigmoid = nn.Sigmoid()
 
     def forward(self, x):
         x = self.fc1(x)
@@ -24,24 +25,26 @@ class MLP(nn.Module):
         x = self.fc2(x)
         x = self.relu2(x)
         x = self.fc3(x)
-        # x = self.relu3(x)
-        # x = self.fc4(x)
+        x = self.relu3(x)
+        x = self.fc4(x)
+        x = self.sigmoid(x)
         return x
 
 
 def mlp_train_test_proc(X_train: pd.DataFrame,
                         X_test: pd.DataFrame,
                         y_train: pd.DataFrame,
-                        y_test: pd.DataFrame)->dict:
+                        y_test: pd.DataFrame,
+                        model_best_configs: dict)->dict:
     
     input_size = 88
     hidden_size1 = 256
     hidden_size2 = 64
     hidden_size3 = 16
     output_size = 1
-    learning_rate = 0.01
+    learning_rate = 0.001
     batch_size = 64
-    num_epochs = 10
+    num_epochs = 3
     device = 'cpu'
 
     X_train_tensor = torch.tensor(X_train.values, dtype=torch.float32).to(device)
