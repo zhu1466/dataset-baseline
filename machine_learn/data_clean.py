@@ -1,6 +1,6 @@
 import pandas as pd
 import numpy as np
-from utils import transform_date_to_int_by_order
+from utils import transform_date_to_int_by_order, normalize_series
 
 import yaml
 
@@ -11,7 +11,7 @@ def data_clean(data:pd.DataFrame,
     '''
     # 处理Object类型
     # 1.grade完全由subGrade多对一确定，删除grade，并将subGrade进行one-hot编码,但由于F1-G5样本太小，故将F1-F5合并为F，G1-G5合并为G
-    # 2.title属性，无意义，删除
+    # 2.title属性，无意义，删除,'policyCode', 'n11', 'n12' 绝大部分值相同，删除
     # 3.employmentLenth共十种取值，转为one-hot编码（后续模型不允许列名中含有'<',故改名）
     # 4.earliesCreditLine和issueDate属性属于月份，取值多且有明显的连续属性，用utils.transform_date_to_int_by_order函数，按先后顺序转化为数字
     data['earliesCreditLine'] = transform_date_to_int_by_order(data['earliesCreditLine'])
@@ -28,8 +28,7 @@ def data_clean(data:pd.DataFrame,
 
     data = pd.concat([data, employmentLength_dummies], axis=1)
     data = pd.concat([data, subGrade_dummies], axis=1)
-    data.drop(['title', 'employmentLength', 'subGrade', 'grade'], inplace=True, axis=1)
-
+    data.drop(['title', 'employmentLength', 'subGrade', 'grade', 'policyCode', 'n11', 'n12'], inplace=True, axis=1)
     # 对部分有偏数据进行放缩，需要进行放缩的变量以及其放缩比例保存在configs/data_clean.yml中
     with open(config_path, 'r') as file:
         config_data = yaml.safe_load(file)
@@ -39,5 +38,9 @@ def data_clean(data:pd.DataFrame,
     # 发现20列中有空值，且最多空值比例5%，以众数填充
     data = data.apply(lambda x : x.fillna(x.mode().iloc[0]), axis=0)
 
+    # 对数据进行归一化操作，方法在utils.normalize_series
+    # 1. 对于超出上下边界的数据，以边界值填充
+    # 2. 对数据进行Z-score标准化，将数据转化为均值为0，标准差为1的数据，方便模型收敛
+    data = pd.concat([data[['id','isDefault']], data.drop(['id','isDefault'], axis=1).apply(normalize_series, axis = 0)], axis=1)
     return data
     

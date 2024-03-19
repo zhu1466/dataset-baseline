@@ -5,7 +5,7 @@ import yaml
 from pyecharts.charts import Sunburst
 from pyecharts import options as opts
 import matplotlib.pyplot as plt
-
+import numpy as np
 def categorize_columns(df:pd.DataFrame,
                        max_discrete_number: int = 200)-> dict:
     '''
@@ -78,6 +78,42 @@ def save_model_params_to_yml(model_name: str,
     with open(yml_path, 'w', encoding='utf-8') as file:
         file.write(updated_yaml)
 
+def convert_to_yaml_serializable(obj):
+    if isinstance(obj, np.ndarray) and obj.size == 1:
+        return obj.item()  # 将 NumPy 数组的标量值转换为 Python 标量值
+    return obj
+
+def save_model_score(moedel_results:dict,
+                     save_path: str,
+                     model_name: str,
+                     metric_of_interest: str = 'Auc') ->None:
+    
+    '''
+    将模型最佳表现保存在yml文件中
+    '''
+    with open(save_path, 'r', encoding='utf-8') as file:
+        data = yaml.load(file, Loader=yaml.FullLoader)
+    if model_name in data.keys():
+        if metric_of_interest in data[model_name].keys():
+            if data[model_name][metric_of_interest] < moedel_results[metric_of_interest]:
+                data[model_name] = {}
+                for metric in moedel_results.keys():
+                    data[model_name][metric] = float(moedel_results[metric])
+            else:
+                data = data
+        else:
+            data[model_name] = {}
+            for metric in moedel_results.keys():
+                data[model_name][metric] = float(moedel_results[metric])
+    else:
+        data[model_name] = {}
+        for metric in moedel_results.keys():
+            data[model_name][metric] = float(moedel_results[metric])
+    with open(save_path, 'w', encoding='utf-8') as file:
+        yaml.dump(data, file)
+
+        
+
 
 def plot_categorize_columns_results(categorize_columns_results: dict) ->Sunburst:
     plot_data = []
@@ -137,3 +173,21 @@ def plot_different_features(data:pd.DataFrame,
         axes[i].set_title(column)
     plt.tight_layout()
     plt.show()
+
+
+def normalize_series(series:pd.Series,
+                     boundary:float = 0.005)->pd.Series:
+    '''
+    对数据进行归一化操作
+    1. 对于超出上下边界的数据，以边界值填充
+    2. 对数据进行Z-score标准化，将数据转化为均值为0，标准差为1的数据，方便模型收敛
+    '''
+    up_boundary = series.sort_values().reset_index(drop=True).iloc[-int(boundary*len(series))]
+    down_boundary = series.sort_values().reset_index(drop=True).iloc[int(boundary*len(series))]
+    series = series.apply(lambda x: up_boundary if x>up_boundary else x)
+    series = series.apply(lambda x: down_boundary if x<down_boundary else x)
+    mean = series.mean()
+    std = series.std()
+    series = series.apply(lambda x: (x-mean)/std) if std!=0 else series
+    return series
+

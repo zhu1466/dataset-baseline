@@ -101,7 +101,7 @@ def SVM_model(  X_train: pd.DataFrame,
                'Acc': acc,
                'Precision': precision,
                'Recall': recall,
-               'F1 score': f1}
+               'F1Score': f1}
     print_model_results(model_name='SVM', model_results= results)
     return results
 
@@ -136,7 +136,7 @@ def random_forest_model(X_train: pd.DataFrame,
                'Acc': acc,
                'Precision': precision,
                'Recall': recall,
-               'F1 score': f1}
+               'F1Score': f1}
     print_model_results(model_name='Random Forest', model_results=results)
     return results
 
@@ -177,7 +177,7 @@ def XGBoost_model(  X_train: pd.DataFrame,
                'Acc': acc,
                'Precision': precision,
                'Recall': recall,
-               'F1 score': f1}
+               'F1Score': f1}
     print_model_results(model_name='XGBoost', model_results=results)
     return results
 
@@ -215,7 +215,7 @@ def decision_tree_model( X_train: pd.DataFrame,
                'Acc': acc,
                'Precision': precision,
                'Recall': recall,
-               'F1 score': f1}
+               'F1Score': f1}
     print_model_results(model_name='Decision tree', model_results=results)
     return results
 

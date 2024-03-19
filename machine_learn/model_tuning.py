@@ -21,7 +21,7 @@ X = features[0:int(train_percent*len(features))]
 y = labels[0:int(train_percent*len(features))]
 
 # decision_tree
-rf_classifier = DecisionTreeClassifier()
+decision_tree = DecisionTreeClassifier()
 param_grid = {
     'max_depth': [15, 30, 45, 60], 
     'min_samples_split': [100, 200, 400],
@@ -29,7 +29,7 @@ param_grid = {
     'criterion': ['gini', 'entropy'],
     'max_features': [None, 'sqrt', 'log2']
 }
-grid_search = GridSearchCV(estimator=rf_classifier, param_grid=param_grid, scoring='roc_auc', cv=cv_number)
+grid_search = GridSearchCV(estimator=decision_tree, param_grid=param_grid, scoring='roc_auc', cv=cv_number)
 grid_search.fit(X, y)
 print("Best Parameters: ", grid_search.best_params_)
 print("Best AUC Score: ", grid_search.best_score_)
@@ -50,14 +50,14 @@ print("Best AUC Score: ", grid_search.best_score_)
 save_model_params_to_yml(model_name='random_forest', model_params= grid_search.best_params_,yml_path=yml_path)
 
 # XGBoost
-rf_classifier = xgb.XGBClassifier()
+XGBoost_model = xgb.XGBClassifier()
 param_grid = {
     'max_depth': [20, 40, 60],
     'learning_rate': [0.1, 0.01, 0.001],
     'n_estimators': [100, 200, 300],
     'gamma': [0, 0.1, 0.2]
 }
-grid_search = GridSearchCV(estimator=rf_classifier, param_grid=param_grid, scoring='roc_auc', cv=cv_number)
+grid_search = GridSearchCV(estimator=XGBoost_model, param_grid=param_grid, scoring='roc_auc', cv=cv_number)
 grid_search.fit(X, y)
 print("Best Parameters: ", grid_search.best_params_)
 print("Best AUC Score: ", grid_search.best_score_)
