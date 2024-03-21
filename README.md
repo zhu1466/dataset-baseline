@@ -35,10 +35,10 @@ data|data_after_clean.csv|清洗后数据
 使用utils.categorize_columns函数对所有的变量属性进行判断，将X划分为"连续变量"，“离散变量”，“字符型变量”，对其分别处理
 
 ## 2.2.处理Object类型
-<br>a.grade完全由subGrade多对一确定，删除grade，并将subGrade进行one-hot编码,但由于F1-G5样本太小，故将F1-F5合并为F，G1-G5合并为G</br>
-<br>b.title属性，无意义，删除, 'policyCode', 'n11', 'n12' 绝大部分值相同，删除</br>
-<br>c.employmentLenth共十种取值，转为one-hot编码（后续模型不允许列名中含有'<',故改名）</br>
-<br>d.earliesCreditLine和issueDate属性属于月份，取值多且有明显的连续属性，用utils.transform_date_to_int_by_order函数，按先后顺序转化为数字</br>
+<br>a. grade完全由subGrade多对一确定，删除grade，并将subGrade进行one-hot编码,但由于F1-G5样本太小，故将F1-F5合并为F，G1-G5合并为G</br>
+<br>b. title属性，无意义，删除, 'policyCode', 'n11', 'n12' 绝大部分值相同，删除</br>
+<br>c. employmentLenth共十种取值，转为one-hot编码（后续模型不允许列名中含有'<',故改名）</br>
+<br>d. earliesCreditLine和issueDate属性属于月份，取值多且有明显的连续属性，用utils.transform_date_to_int_by_order函数，按先后顺序转化为数字</br>
 
 ## 2.3. 处理有偏数据
 对部分有偏数据进行放缩，需要进行放缩的变量以及其放缩比例保存在configs/data_clean.yml中
