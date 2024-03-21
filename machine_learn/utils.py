@@ -63,7 +63,7 @@ def print_model_results(model_results: dict,
         if isinstance(model_results[i], float) or isinstance(model_results[i], int):
             print(f'\t----Indicator name {i} : \t{str(round(model_results[i],4))}')
         else:
-            print(f'\t----Indicator name {i}  type can be viewed by other method')
+            print(f'\t----Indicator name {i}  this type of data better to be viewed by other method')
         
 def save_model_params_to_yml(model_name: str,
                              model_params: dict,
@@ -83,7 +83,7 @@ def convert_to_yaml_serializable(obj):
         return obj.item()  # 将 NumPy 数组的标量值转换为 Python 标量值
     return obj
 
-def save_model_score(moedel_results:dict,
+def save_model_score(model_results:dict,
                      save_path: str,
                      model_name: str,
                      metric_of_interest: str = 'Auc') ->None:
@@ -95,20 +95,20 @@ def save_model_score(moedel_results:dict,
         data = yaml.load(file, Loader=yaml.FullLoader)
     if model_name in data.keys():
         if metric_of_interest in data[model_name].keys():
-            if data[model_name][metric_of_interest] < moedel_results[metric_of_interest]:
+            if data[model_name][metric_of_interest] < model_results[metric_of_interest]:
                 data[model_name] = {}
-                for metric in moedel_results.keys():
-                    data[model_name][metric] = float(moedel_results[metric])
+                for metric in model_results.keys():
+                    data[model_name][metric] = float(model_results[metric]) if not isinstance(model_results[metric], list) else model_results[metric]
             else:
                 data = data
         else:
             data[model_name] = {}
-            for metric in moedel_results.keys():
-                data[model_name][metric] = float(moedel_results[metric])
+            for metric in model_results.keys():
+                data[model_name][metric] = float(model_results[metric]) if not isinstance(model_results[metric], list) else model_results[metric]
     else:
         data[model_name] = {}
-        for metric in moedel_results.keys():
-            data[model_name][metric] = float(moedel_results[metric])
+        for metric in model_results.keys():
+            data[model_name][metric] = float(model_results[metric]) if not isinstance(model_results[metric], list) else model_results[metric]
     with open(save_path, 'w', encoding='utf-8') as file:
         yaml.dump(data, file)
 
@@ -190,4 +190,5 @@ def normalize_series(series:pd.Series,
     std = series.std()
     series = series.apply(lambda x: (x-mean)/std) if std!=0 else series
     return series
+
 
